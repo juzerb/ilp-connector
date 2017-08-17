@@ -53,6 +53,9 @@ class MockPlugin extends EventEmitter {
     if (this.broke) {
       return Promise.resolve('0')
     }
+    if (this.rich) {
+      return Promise.resolve('1000000000')
+    }
     return Promise.resolve('123.456')
   }
 
@@ -61,7 +64,8 @@ class MockPlugin extends EventEmitter {
       prefix: this._prefix,
       connectors: ['mark'],
       currencyCode: 'doesn\'t matter, the connector will ignore this',
-      currencyScale: 4
+      currencyScale: 4,
+      minBalance: 0
     }
   }
 

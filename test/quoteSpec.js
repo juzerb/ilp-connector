@@ -144,7 +144,7 @@ describe('Quotes', function () {
     yield assert.isRejected(quotePromise, UnacceptableExpiryError, /Destination expiry duration is too long/)
   })
 
-  it('should not return an Error for insufficient liquidity', function * () {
+  it('should return an Error for insufficient liquidity', function * () {
     const quotePromise = co(this.routeBuilder.quoteByDestination({
       destinationAmount: '150001',
       sourceAccount: 'eur-ledger.alice',
@@ -152,7 +152,7 @@ describe('Quotes', function () {
       destinationHoldDuration: 10
     }))
 
-    yield assert.isFulfilled(quotePromise)
+    yield assert.isRejected(quotePromise, NoRouteFoundError, 'No route found from: eur-ledger.alice to: usd-ledger.bob')
   })
 
   it('should not return an Error when unable to get balance from ledger', function * () {
@@ -172,7 +172,7 @@ describe('Quotes', function () {
 
   it('should return quotes for fixed source amounts', function * () {
     const quote = yield this.routeBuilder.quoteBySource({
-      sourceAmount: '1000000',
+      sourceAmount: '100000',
       sourceAccount: 'eur-ledger.alice',
       destinationAccount: 'usd-ledger.bob',
       destinationHoldDuration: 5000
@@ -180,7 +180,7 @@ describe('Quotes', function () {
 
     expect(quote).to.deep.equal({
       sourceHoldDuration: 6000,
-      destinationAmount: '1057081' // EUR/USD Rate of 1.0592 - .2% spread
+      destinationAmount: '105708' // EUR/USD Rate of 1.0592 - .2% spread
     })
   })
 
@@ -188,12 +188,12 @@ describe('Quotes', function () {
   it('should return quotes for fixed destination amounts', function * () {
     const quote = yield this.routeBuilder.quoteByDestination({
       sourceAccount: 'eur-ledger.alice',
-      destinationAmount: '1000000',
+      destinationAmount: '100000',
       destinationAccount: 'usd-ledger.bob',
       destinationHoldDuration: 5000
     })
     expect(quote).to.deep.equal({
-      sourceAmount: '946001', // (1/ EUR/USD Rate of 1.0592) + .2% spread + round up to overestimate
+      sourceAmount: '94601', // (1/ EUR/USD Rate of 1.0592) + .2% spread + round up to overestimate
       sourceHoldDuration: 6000
     })
   })
@@ -205,7 +205,7 @@ describe('Quotes', function () {
       destinationHoldDuration: 5000
     })
     expect(quote).to.deep.equal({
-      liquidityCurve: new LiquidityCurve([ [ 1, 0 ], [ 94600076285502, 100000000000000 ] ]).toBuffer(),
+      liquidityCurve: new LiquidityCurve([ [ 1, 0 ], [ 141901, 150000 ] ]).toBuffer(),
       appliesToPrefix: 'usd-ledger.',
       sourceHoldDuration: 6000,
       expiresAt: new Date(START_DATE + 45000)
@@ -272,39 +272,39 @@ describe('Quotes', function () {
 
   it('should apply the spread correctly for payments where the source asset is the counter currency in the fx rates', function * () {
     const quote = yield this.routeBuilder.quoteBySource({
-      sourceAmount: '1000000',
+      sourceAmount: '100000',
       sourceAccount: 'usd-ledger.bob',
       destinationAccount: 'eur-ledger.alice',
       destinationHoldDuration: 5000
     })
     expect(quote).to.deep.equal({
-      destinationAmount: '942220', // 1 / (EUR/USD Rate of 1.0592 + .2% spread)
+      destinationAmount: '94222', // 1 / (EUR/USD Rate of 1.0592 + .2% spread)
       sourceHoldDuration: 6000
     })
   })
 
   it('should determine the correct rate and spread when neither the source nor destination asset is the base currency in the rates', function * () {
     const quote = yield this.routeBuilder.quoteBySource({
-      sourceAmount: '1000000',
+      sourceAmount: '100000',
       sourceAccount: 'usd-ledger.bob',
       destinationAccount: 'cad-ledger.carl',
       destinationHoldDuration: 5000
     })
     expect(quote).to.deep.equal({
-      destinationAmount: '1279818', // USD/CAD Rate (1.3583 / 1.0592) - .2% spread
+      destinationAmount: '127981', // USD/CAD Rate (1.3583 / 1.0592) - .2% spread
       sourceHoldDuration: 6000
     })
   })
 
   it('should determine the correct rate and spread when neither the source nor destination asset is the base currency in the rates and the rate must be flipped', function * () {
     const quote = yield this.routeBuilder.quoteBySource({
-      sourceAmount: '1000000',
+      sourceAmount: '100000',
       sourceAccount: 'cad-ledger.carl',
       destinationAccount: 'usd-ledger.bob',
       destinationHoldDuration: 5000
     })
     expect(quote).to.deep.equal({
-      destinationAmount: '778238', // 1/(USD/CAD Rate (1.3583 / 1.0592) + .2% spread)
+      destinationAmount: '77823', // 1/(USD/CAD Rate (1.3583 / 1.0592) + .2% spread)
       sourceHoldDuration: 6000
     })
   })

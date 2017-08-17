@@ -385,7 +385,7 @@ describe('RouteBroadcaster', function () {
       assert.deepEqual(route.destinationLedger, ledgerB)
       assert.deepEqual(route.sourceAccount, ledgerA + 'mark')
       assert.deepEqual(route.destinationAccount, ledgerB + 'mark')
-      assert.deepEqual(route.getPoints(), [ [0, 0], [100000000000000, 77823868070382] ])
+      assert.deepEqual(route.getPoints(), [ [0, 0], [159, 123] ])
     })
   })
 })

@@ -27,6 +27,8 @@ describe('Subscriptions', function () {
     appHelper.create(this)
     yield this.backend.connect(ratesResponse)
     yield this.ledgers.connect()
+    this.ledgers.getPlugin('eur-ledger.').rich = true
+
     yield this.routeBroadcaster.reloadLocalRoutes()
 
     nock('http://usd-ledger.example').get('/')
