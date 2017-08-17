@@ -50,6 +50,9 @@ class MockPlugin extends EventEmitter {
   * _handleNotification () { }
 
   getBalance () {
+    if (this.broke) {
+      return Promise.resolve('0')
+    }
     return Promise.resolve('123.456')
   }
 
